@@ -3,12 +3,49 @@
  */
 package lktr;
 
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import lktr.Pieces.Pawn;
+import lktr.Pieces.Piece;
+
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
+    public static void enPassant(Board board) {
+        board.display();
+        board.play("d2", "d4");
+        board.display();
+        board.play("d7", "d6");
+        board.display();
+        board.play("d4", "d5");
+        board.display();
+        board.play("e7", "e5");
+        board.display();
+        board.play("c2", "c3");
+        board.display();
+        board.play("c7", "c5");
+        board.display();
+        Pawn p = (Pawn) board.whitePieces.get(8 + 3);
+        System.out.println(p.getLegalMoves(board));
     }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        Board board = new Board();
+        Scanner scanner = new Scanner(System.in); 
+
+        while(true) {
+            board.display();
+
+            try {
+                System.out.println(String.format("%s's turn !", board.isWhiteTurn() ? "White": "Black"));
+                System.out.print("Starting square : ");
+                String c1 = scanner.next();
+                System.out.print("Final square : ");
+                String c2 = scanner.next();
+
+                board.play(c1, c2);
+            } catch (RuntimeException e) {
+                System.out.println(e);
+            }
+        }
     }
 }
