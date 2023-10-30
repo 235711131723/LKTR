@@ -130,6 +130,9 @@ public class Square {
         return this.y;
     }
     
+    /**
+     * Replace the current piece by the new one.
+     */
     public void place(Piece piece) {
         this.occupyingPiece = piece;
     }
