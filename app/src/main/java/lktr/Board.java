@@ -80,6 +80,7 @@ public class Board {
     public void display() {
         String[][] pieces = new String[8][8];
 
+        // Draw pieces
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 Square s = board[y][x];
@@ -88,6 +89,7 @@ public class Board {
             }
         }
 
+        // Show coordinates
         for (int y = 0; y < 8; y++) {
             System.out.print(String.format("%d%c", 7 - y + 1, '|'));
             for (int x = 0; x < 8; x++) {
