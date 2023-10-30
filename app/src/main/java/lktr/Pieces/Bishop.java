@@ -35,6 +35,8 @@ public class Bishop extends Piece {
                         Piece p = cs.getOccupyingPiece();
                         if (isEnemy(p))
                             moves.add(cs);
+                        else
+                            break;
                     }
                 }
                 cs = is;
