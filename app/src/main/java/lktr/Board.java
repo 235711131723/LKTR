@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import lktr.Pieces.Piece;
 import lktr.Pieces.Bishop;
 import lktr.Pieces.Knight;
+import lktr.Pieces.Rook;
 import lktr.Pieces.Pawn;
 
 public class Board {
@@ -69,6 +70,13 @@ public class Board {
 
         board[0][6].place(new Knight(false, board[0][6], RESOURCES_BKNIGHT_PNG));
         board[7][6].place(new Knight(true, board[7][6], RESOURCES_WKNIGHT_PNG));
+
+        // Rooks
+        board[0][0].place(new Rook(false, board[0][0], RESOURCES_BROOK_PNG));
+        board[7][0].place(new Rook(true, board[7][0], RESOURCES_WROOK_PNG));
+
+        board[0][7].place(new Rook(false, board[0][7], RESOURCES_BROOK_PNG));
+        board[7][7].place(new Rook(true, board[7][7], RESOURCES_WROOK_PNG));
     }
 
     public Board() {
