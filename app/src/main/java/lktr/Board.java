@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import lktr.Pieces.Piece;
+import lktr.Pieces.Bishop;
 import lktr.Pieces.Pawn;
 
 public class Board {
@@ -53,6 +54,10 @@ public class Board {
             // White pawns
             board[6][x].place(new Pawn(true, board[6][x], RESOURCES_WPAWN_PNG));
         }
+
+        // Bishops
+        board[0][2].place(new Bishop(false, board[0][2], RESOURCES_BBISHOP_PNG));
+        board[7][2].place(new Bishop(true, board[7][2], RESOURCES_WBISHOP_PNG));
     }
 
     public Board() {
