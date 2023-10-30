@@ -66,7 +66,16 @@ public class Square {
     public Square getLeftNeighbor() {
         return neighborX(-1);
     }
-    
+
+    public Square getDiagonalNeighbor(boolean toBottom, boolean toRight) {
+        int dy = toBottom ? 1 : -1;
+        int dx = toRight ? 1 : -1;
+        Square ny = neighborY(dy);
+        if (ny == null)
+            return null;
+        return ny.neighborX(dx);
+    }
+
     public boolean isWhite() {
         return white;
     }
@@ -116,6 +125,30 @@ public class Square {
                 return false;
             if (currentSquare.isOccupied())
                 return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if there is a piece between this square and another
+     * starting from the current square to the given square.
+     * on a diagonal axis.
+     */
+    public boolean isDiagonalLinearlyOccupied(Square s) {
+        // Swap squares if the current one is below the given one
+        // as we want to check from top to bot and left to right for more simplicity
+        int dx = (getX() <= s.getX()) ? 1 : -1;
+        int dy = (getY() <= s.getY()) ? 1 : -1;
+        Square currentSquare = this;
+        while (currentSquare.getY() != s.getY() && currentSquare.getX() != s.getX()) {
+            currentSquare = currentSquare.neighborY(dy);
+            Square dc;
+            if (currentSquare == null || (dc = currentSquare.neighborX(dx)) == null)
+                return false;
+            if (dc.isOccupied())
+                return true;
+            currentSquare = dc;
         }
 
         return false;
