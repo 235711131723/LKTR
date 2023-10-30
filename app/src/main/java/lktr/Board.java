@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import lktr.Pieces.Piece;
+import lktr.Pieces.Queen;
 import lktr.Pieces.Bishop;
 import lktr.Pieces.Knight;
 import lktr.Pieces.Rook;
@@ -77,6 +78,10 @@ public class Board {
 
         board[0][7].place(new Rook(false, board[0][7], RESOURCES_BROOK_PNG));
         board[7][7].place(new Rook(true, board[7][7], RESOURCES_WROOK_PNG));
+
+        // Queen
+        board[0][4].place(new Queen(false, board[0][4], RESOURCES_BQUEEN_PNG));
+        board[7][4].place(new Queen(true, board[7][4], RESOURCES_WQUEEN_PNG));
     }
 
     public Board() {
