@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import lktr.Pieces.Piece;
 import lktr.Pieces.Bishop;
+import lktr.Pieces.Knight;
 import lktr.Pieces.Pawn;
 
 public class Board {
@@ -58,6 +59,10 @@ public class Board {
         // Bishops
         board[0][2].place(new Bishop(false, board[0][2], RESOURCES_BBISHOP_PNG));
         board[7][2].place(new Bishop(true, board[7][2], RESOURCES_WBISHOP_PNG));
+
+        // Knights
+        board[0][1].place(new Knight(false, board[0][1], RESOURCES_BKNIGHT_PNG));
+        board[7][1].place(new Knight(true, board[7][1], RESOURCES_WKNIGHT_PNG));
     }
 
     public Board() {
