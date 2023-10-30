@@ -54,17 +54,17 @@ public abstract class Piece {
     
     /**
      * Move the piece by specifying a square.
-     * @param newSquare The new square where to place the piece.
+     * @param ns The new square where to place the piece.
      * @return Whenever the move has been a success or not.
      */
-    public boolean move(Board board, Square newSquare) {
+    public boolean move(Board board, Square ns) {
         // Save the previous position
         this.previousSquare = this.currentSquare;
 
         // Displace the piece
         this.currentSquare.removePiece();
-        newSquare.place(this);
-        this.currentSquare = newSquare;
+        ns.place(this);
+        this.currentSquare = ns;
 
         // Mark the piece as moved
         this.wasMoved = true;

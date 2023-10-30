@@ -10,14 +10,14 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean move(Board board, Square newSquare) {
+    public boolean move(Board board, Square ns) {
         // We give the final square where the pawn will be placed
         // not the square where the enemy pawn is
-        Square bs = getBackwardSquare(newSquare);
+        Square bs = getBackwardSquare(ns);
         if (canEnPassant(board, bs)) {
             bs.removePiece();
         }
-        boolean flag = super.move(board, newSquare);
+        boolean flag = super.move(board, ns);
         return flag;
     }
 
@@ -62,11 +62,11 @@ public class Pawn extends Piece {
      * Detect if this pawn can en-passant.
      * The square where the pawn has done a double move.
      */
-    private boolean canEnPassant(Board board, Square newSquare) {
+    private boolean canEnPassant(Board board, Square ns) {
         Square s = getSquare();
-        if(newSquare == null || !newSquare.isOccupied() || !(s.getLeftNeighbor() == newSquare || s.getRightNeighbor() == newSquare)) return false;
+        if(ns == null || !ns.isOccupied() || !(s.getLeftNeighbor() == ns || s.getRightNeighbor() == ns)) return false;
 
-        Piece p = newSquare.getOccupyingPiece();
+        Piece p = ns.getOccupyingPiece();
         Square psp = p.getPreviousSquare();
 
         // Check if it is a pawn and
