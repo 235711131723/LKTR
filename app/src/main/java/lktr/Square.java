@@ -51,29 +51,21 @@ public class Square {
         return squares[y][x + dx];
     }
 
-    public Square getDownNeighbor() {
-        return neighborY(1);
+    public Square getNextNeighborX(boolean toRight) {
+        int dx = toRight ? 1 : -1;
+        return neighborX(dx);
     }
 
-    public Square getUpperNeighbor() {
-        return neighborY(-1);
-    }
-
-    public Square getRightNeighbor() {
-        return neighborX(1);
-    }
-    
-    public Square getLeftNeighbor() {
-        return neighborX(-1);
+    public Square getNextNeighborY(boolean toBottom) {
+        int dy = toBottom ? 1 : -1;
+        return neighborY(dy);
     }
 
     public Square getDiagonalNeighbor(boolean toBottom, boolean toRight) {
-        int dy = toBottom ? 1 : -1;
-        int dx = toRight ? 1 : -1;
-        Square ny = neighborY(dy);
+        Square ny = getNextNeighborY(toBottom);
         if (ny == null)
             return null;
-        return ny.neighborX(dx);
+        return ny.getNextNeighborX(toRight);
     }
 
     public boolean isWhite() {
@@ -96,10 +88,10 @@ public class Square {
     public boolean isYLinearlyOccupied(Square s) {
         // Swap squares if the current one is below the given one
         // as we want to check from top to bot for more simplicity
-        int dy = (getY() <= s.getY()) ? 1 : -1;
+        boolean toBottom = getY() <= s.getY();
         Square currentSquare = this;
-        while (currentSquare.getY() != s.getY()) {
-            currentSquare = currentSquare.neighborY(dy);
+        while (currentSquare != s) {
+            currentSquare = currentSquare.getNextNeighborY(toBottom);
             if (currentSquare == null)
                 return false;
             if (currentSquare.isOccupied())
@@ -117,38 +109,14 @@ public class Square {
     public boolean isXLinearlyOccupied(Square s) {
         // Swap squares if the current one is below the given one
         // as we want to check from left to right for more simplicity
-        int dx = (getX() <= s.getX()) ? 1 : -1;
+        boolean toRight = getX() <= s.getX();
         Square currentSquare = this;
-        while (currentSquare.getX() != s.getX()) {
-            currentSquare = currentSquare.neighborX(dx);
+        while (currentSquare != s) {
+            currentSquare = currentSquare.getNextNeighborX(toRight);
             if (currentSquare == null)
                 return false;
             if (currentSquare.isOccupied())
                 return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if there is a piece between this square and another
-     * starting from the current square to the given square.
-     * on a diagonal axis.
-     */
-    public boolean isDiagonalLinearlyOccupied(Square s) {
-        // Swap squares if the current one is below the given one
-        // as we want to check from top to bot and left to right for more simplicity
-        int dx = (getX() <= s.getX()) ? 1 : -1;
-        int dy = (getY() <= s.getY()) ? 1 : -1;
-        Square currentSquare = this;
-        while (currentSquare.getY() != s.getY() && currentSquare.getX() != s.getX()) {
-            currentSquare = currentSquare.neighborY(dy);
-            Square dc;
-            if (currentSquare == null || (dc = currentSquare.neighborX(dx)) == null)
-                return false;
-            if (dc.isOccupied())
-                return true;
-            currentSquare = dc;
         }
 
         return false;

@@ -13,7 +13,7 @@ public class Pawn extends Piece {
     public boolean move(Board board, Square ns) {
         // We give the final square where the pawn will be placed
         // not the square where the enemy pawn is
-        Square bs = getBackwardSquare(ns);
+        Square bs = ns.getNextNeighborY(isWhite());
         if (canEnPassant(board, bs)) {
             bs.removePiece();
         }
@@ -34,15 +34,15 @@ public class Pawn extends Piece {
         Square cs = getSquare();
         // NOTE: pointless to think of null value when
         // dealing with forward squares
-        Square fs = getForwardSquare();
-        Square ffs = getDoubleForwardSquare();
+        Square fs = cs.getNextNeighborY(!isWhite());
+        Square ffs = fs.getNextNeighborY(!isWhite());
 
         // Double move
         if(!hasBeenMoved() && !cs.isYLinearlyOccupied(ffs)) moves.add(ffs);
         if (!fs.isOccupied()) moves.add(fs);
 
         // Eat
-        Square[] diagonals = {fs.getLeftNeighbor(), fs.getRightNeighbor()};
+        Square[] diagonals = {fs.getNextNeighborX(false), fs.getNextNeighborX(true)};
         for(Square s: diagonals) {
             if (s == null || !s.isOccupied()) continue;
             Piece p = s.getOccupyingPiece();
@@ -50,9 +50,9 @@ public class Pawn extends Piece {
         }
 
         // En-passant
-        Square[] sides = {cs.getLeftNeighbor(), cs.getRightNeighbor()};
+        Square[] sides = {cs.getNextNeighborX(false), cs.getNextNeighborX(true)};
         for(Square s: sides) {
-            if (canEnPassant(board, s)) moves.add(getForwardSquare(s));
+            if (canEnPassant(board, s)) moves.add(s.getNextNeighborY(!isWhite()));
         }
 
         return moves;
@@ -64,7 +64,7 @@ public class Pawn extends Piece {
      */
     private boolean canEnPassant(Board board, Square ns) {
         Square s = getSquare();
-        if(ns == null || !ns.isOccupied() || !(s.getLeftNeighbor() == ns || s.getRightNeighbor() == ns)) return false;
+        if(ns == null || !ns.isOccupied() || !(s.getNextNeighborX(false) == ns || s.getNextNeighborX(true) == ns)) return false;
 
         Piece p = ns.getOccupyingPiece();
         Square psp = p.getPreviousSquare();
@@ -80,47 +80,6 @@ public class Pawn extends Piece {
         return false;
     }
 
-    /**
-     * Get the forward square in front of the given square.
-     * It may be null as well when hitting the border.
-     */
-    public Square getForwardSquare(Square s) {
-        int dy = isWhite() ? -1 : 1;
-        return s.neighborY(dy);
-    }
-
-    public Square getForwardSquare() {
-        return getForwardSquare(getSquare());
-    }
-
-    /**
-     * Get the backward square in front of the given square.
-     * It may be null as well when hitting the border.
-     */
-    public Square getBackwardSquare(Square s) {
-        int dy = isWhite() ? -1 : 1;
-        return s.neighborY(-dy);
-    }
-
-    public Square getBackwardSquare() {
-        return getBackwardSquare(getSquare());
-    }
-
-    /**
-     * Get the double forward square in front of the given square.
-     * It may be null as well when hitting the border.
-     */
-    public Square getDoubleForwardSquare(Square s) {
-        Square fs = getForwardSquare(s);
-        if(fs == null) return null;
-        Square ffs = getForwardSquare(fs);
-        return ffs;
-    }
-
-    public Square getDoubleForwardSquare() {
-        return getDoubleForwardSquare(getSquare());
-    }
-    
     public String toString() {
         return super.toString("P");
     }
