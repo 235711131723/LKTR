@@ -105,7 +105,7 @@ public class Board {
     }
 
     public boolean checkCode(String c) {
-        Pattern pattern = Pattern.compile("^[a-h][0-9]$", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("^[a-h][1-8]$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(c);
         return matcher.find();
     }
