@@ -12,8 +12,8 @@ public class Square {
     
     private Piece occupyingPiece;
     
-    private int x;
-    private int y;
+    public final int x;
+    public final int y;
     
     /**
      * 
@@ -29,111 +29,69 @@ public class Square {
         this.y = y;
     }
 
-    /**
-     * Get the square from the relative dy-position.
-     * Returns null if the neighbor is out of the box.
-     */
-    public Square neighborY(int dy) {
-        Square[][] squares = board.getBoard();
-        if (y + dy < 0 || y + dy >= 8)
-            return null;
-        return squares[y + dy][x];
-    }
-
-    /**
-     * Get the square from the relative dx-position.
-     * Returns null if the neighbor is out of the box.
-     */
-    public Square neighborX(int dx) {
-        Square[][] squares = board.getBoard();
-        if (x + dx < 0 || x + dx >= 8)
-            return null;
-        return squares[y][x + dx];
-    }
-
-    public Square getNextNeighborX(boolean toRight) {
-        int dx = toRight ? 1 : -1;
-        return neighborX(dx);
-    }
-
-    public Square getNextNeighborY(boolean toBottom) {
-        int dy = toBottom ? 1 : -1;
-        return neighborY(dy);
-    }
-
-    public Square getDiagonalNeighbor(boolean toBottom, boolean toRight) {
-        Square ny = getNextNeighborY(toBottom);
-        if (ny == null)
-            return null;
-        return ny.getNextNeighborX(toRight);
-    }
-
     public boolean isWhite() {
         return white;
     }
-    
-    public Piece getOccupyingPiece() {
-        return occupyingPiece;
-    }
-    
+
     public boolean isOccupied() {
         return (occupyingPiece != null);
     }
 
     /**
-     * Check if there is a piece between this square and another
-     * starting from the current square to the given square.
-     * on the Y-axis.
+     * Get the square from the relative positions.
+     * Returns null if the neighbor is out of the box.
      */
-    public boolean isYLinearlyOccupied(Square s) {
-        // Swap squares if the current one is below the given one
-        // as we want to check from top to bot for more simplicity
-        boolean toBottom = getY() <= s.getY();
-        Square currentSquare = this;
-        while (currentSquare != s) {
-            currentSquare = currentSquare.getNextNeighborY(toBottom);
-            if (currentSquare == null)
-                return false;
-            if (currentSquare.isOccupied())
-                return true;
-        }
-
-        return false;
+    public Square getNeighbor(int dx, int dy) {
+        Square[][] squares = board.getBoard();
+        if (x + dx < 0 || x + dx >= 8 || y + dy < 0 || y + dy >= 8)
+            return null;
+        return squares[y + dy][x + dx];
     }
 
     /**
-     * Check if there is a piece between this square and another
-     * starting from the current square to the given square.
-     * on the Y-axis.
+     * Get the neighbor next to the current square based on booleans
+     * indicating directions.
+     * 
+     * Directions can be either taken in account or ignored with parameters xAxis and yAxis.
      */
-    public boolean isXLinearlyOccupied(Square s) {
-        // Swap squares if the current one is below the given one
-        // as we want to check from left to right for more simplicity
-        boolean toRight = getX() <= s.getX();
+    public Square getNextNeighbor(boolean toBottom, boolean toRight, boolean xAxis, boolean yAxis) {
+        int dx = xAxis ? (toRight ? 1 : -1) : 0;
+        int dy = yAxis ? (toBottom ? 1 : -1) : 0;
+        return getNeighbor(dx, dy);
+    }
+
+    public Square getNextNeighborY(boolean toBottom) {
+        return getNextNeighbor(toBottom, true, false, true);
+    }
+
+    public Square getNextNeighborX(boolean toRight) {
+        return getNextNeighbor(true, toRight, true, false);
+    }
+
+    public Square getDiagonalNeighbor(boolean toBottom, boolean toRight) {
+        return getNextNeighbor(toBottom, toRight, true, true);
+    }
+
+    public Square getLastFreeSquare(boolean toBottom, boolean toRight, boolean xAxis, boolean yAxis) {
         Square currentSquare = this;
-        while (currentSquare != s) {
-            currentSquare = currentSquare.getNextNeighborX(toRight);
-            if (currentSquare == null)
-                return false;
-            if (currentSquare.isOccupied())
-                return true;
+        Square newSquare = null;
+        while (currentSquare != null) {
+            newSquare = currentSquare.getNextNeighbor(toBottom, toRight, xAxis, yAxis);
+            if(newSquare == null || newSquare.isOccupied()) return currentSquare; 
+            currentSquare = newSquare;
         }
 
-        return false;
+        return currentSquare;
     }
-    
-    public int getX() {
-        return this.x;
-    }
-    
-    public int getY() {
-        return this.y;
+
+    public Piece getOccupyingPiece() {
+        return occupyingPiece;
     }
     
     /**
      * Replace the current piece by the new one.
      */
-    public void place(Piece piece) {
+    public void placePiece(Piece piece) {
         this.occupyingPiece = piece;
     }
 
@@ -148,15 +106,15 @@ public class Square {
         return piece;
     }
     
-    public void capture(Piece p) {
-        Piece k = getOccupyingPiece();
-        if (k.isWhite()) board.blackPieces.remove(k);
-        if (!k.isWhite()) board.whitePieces.remove(k);
-        this.occupyingPiece = p;
+    public void capture(Piece newPiece) {
+        Piece currentPiece = getOccupyingPiece();
+        if (currentPiece.white) board.blackPieces.remove(currentPiece);
+        if (!currentPiece.white) board.whitePieces.remove(currentPiece);
+        this.occupyingPiece = newPiece;
     }
 
     public String toString() {
         char[] letters = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
-        return String.format("%c%d", letters[getX()], (7 - getY() + 1));
+        return String.format("%c%d", letters[x], (8 - y));
     }
 }

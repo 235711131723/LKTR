@@ -17,39 +17,26 @@ public class Rook extends Piece {
     @Override
     public ArrayList<Square> getLegalMoves(Board board) {
         ArrayList<Square> moves = new ArrayList<Square>();
-        Square is = getSquare();
+        Square initialSquare = getCurrentSquare();
 
-        boolean bools[] = { true, false };
-        Square cs = is;
-        for(boolean toRight: bools) {
-            for(boolean toBottom: bools) {
-                // X-axis
-                cs = is;
-                while((cs = cs.getNextNeighborX(toRight)) != null) {
-                    if (!cs.isOccupied())
-                        moves.add(cs);
-                    else {
-                        Piece p = cs.getOccupyingPiece();
-                        if (isEnemy(p))
-                            moves.add(cs);
-                        else {
-                            break;
-                        }
-                    }
-                }
+        boolean directions[] = { true, false };
+        boolean xyAxis[][] = { { true, false }, { false, true } };
+        Square candidate;
+        Square nextCandidateSquare;
+        for(boolean toRight: directions) {
+            for(boolean toBottom: directions) {
+                for (boolean[] axis : xyAxis) {
+                    boolean xAxis = axis[0];
+                    boolean yAxis = axis[1];
 
-                // Y-axis
-                cs = is;
-                while((cs = cs.getNextNeighborY(toBottom)) != null) {
-                    if (!cs.isOccupied())
-                        moves.add(cs);
-                    else {
-                        Piece p = cs.getOccupyingPiece();
-                        if (isEnemy(p))
-                            moves.add(cs);
-                        else {
-                            break;
-                        }
+                    candidate = initialSquare.getLastFreeSquare(toBottom, toRight, xAxis, yAxis);
+                    moves.add(candidate);
+
+                    // Check if it can eat
+                    nextCandidateSquare = candidate.getNextNeighbor(toBottom, toRight, xAxis, yAxis);
+                    if(nextCandidateSquare != null && nextCandidateSquare.isOccupied()) {
+                        Piece piece = nextCandidateSquare.getOccupyingPiece();
+                        if(isEnemy(piece)) moves.add(nextCandidateSquare);
                     }
                 }
             }

@@ -10,15 +10,15 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean move(Board board, Square ns) {
+    public void move(Board board, Square newSquare) {
         // We give the final square where the pawn will be placed
         // not the square where the enemy pawn is
-        Square bs = ns.getNextNeighborY(isWhite());
-        if (canEnPassant(board, bs)) {
-            bs.removePiece();
+        if (canEnPassant(board, true) || canEnPassant(board, false)) {
+            Square lowerSquare = getBackSquare(newSquare);
+            // Eat the pawn
+            lowerSquare.removePiece();
         }
-        boolean flag = super.move(board, ns);
-        return flag;
+        super.move(board, newSquare);
     }
 
 
@@ -30,51 +30,108 @@ public class Pawn extends Piece {
     @Override
     public ArrayList<Square> getLegalMoves(Board board) {
         ArrayList<Square> moves = new ArrayList<Square>();
+
+        Square frontSquare = getFrontSquare();
+        if (!frontSquare.isOccupied())
+            moves.add(frontSquare);
         
-        Square cs = getSquare();
-        // NOTE: pointless to think of null value when
-        // dealing with forward squares
-        Square fs = cs.getNextNeighborY(!isWhite());
-        Square ffs = fs.getNextNeighborY(!isWhite());
+        if (canDoubleMove())
+            moves.add(getFrontSquare(frontSquare));
 
-        // Double move
-        if(!hasBeenMoved() && !cs.isYLinearlyOccupied(ffs)) moves.add(ffs);
-        if (!fs.isOccupied()) moves.add(fs);
+        boolean xAxis[] = { true, false };
+        for(boolean toRight: xAxis){
+            Square frontDiagonal = getFrontDiagonalSquare(toRight);
+            if (canEat(toRight))
+                moves.add(frontDiagonal);
 
-        // Eat
-        Square[] diagonals = {fs.getNextNeighborX(false), fs.getNextNeighborX(true)};
-        for(Square s: diagonals) {
-            if (s == null || !s.isOccupied()) continue;
-            Piece p = s.getOccupyingPiece();
-            if(isEnemy(p)) moves.add(s);
-        }
-
-        // En-passant
-        Square[] sides = {cs.getNextNeighborX(false), cs.getNextNeighborX(true)};
-        for(Square s: sides) {
-            if (canEnPassant(board, s)) moves.add(s.getNextNeighborY(!isWhite()));
+            if (canEnPassant(board, toRight))
+                moves.add(frontDiagonal);
         }
 
         return moves;
     }
 
+    private Square getFrontDiagonalSquare(boolean toRight) {
+        return getFrontDiagonalSquare(getCurrentSquare(), toRight);
+    }
+
+    private Square getFrontDiagonalSquare(Square square, boolean toRight) {
+        Square s = getFrontSquare(square);
+        if (s == null)
+            return null;
+        s = s.getNextNeighborX(toRight);
+        return s;
+    }
+    
+    private Square getFrontSquare() {
+        return getFrontSquare(getCurrentSquare());
+    }
+    
+    private Square getFrontSquare(Square square) {
+        if (square == null)
+            return null;
+        return square.getNextNeighborY(!white);
+    }
+
+    private Square getBackSquare() {
+        return getFrontSquare(getCurrentSquare());
+    }
+    
+    private Square getBackSquare(Square square) {
+        if (square == null)
+            return null;
+        return square.getNextNeighborY(white);
+    }
+
+    private boolean canEat(boolean toRight) {
+        Square frontDiagonal = getFrontDiagonalSquare(toRight);
+        if (frontDiagonal == null || !frontDiagonal.isOccupied())
+            return false;
+        Piece piece = frontDiagonal.getOccupyingPiece();
+        if (!isEnemy(piece))
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Check if the pawn can double move.
+     */
+    private boolean canDoubleMove() {
+        if(hasBeenMoved()) return false;
+
+        Square currentSquare = getCurrentSquare();
+        for(int i = 0; i < 2; i++) {
+            currentSquare = getFrontSquare(currentSquare);
+            if(currentSquare.isOccupied()) return false;
+        }
+
+        return true;
+    }
+
     /**
      * Detect if this pawn can en-passant.
-     * The square where the pawn has done a double move.
+     * The provided square is the one where the pawn will be at the end of the move.
      */
-    private boolean canEnPassant(Board board, Square ns) {
-        Square s = getSquare();
-        if(ns == null || !ns.isOccupied() || !(s.getNextNeighborX(false) == ns || s.getNextNeighborX(true) == ns)) return false;
+    private boolean canEnPassant(Board board, boolean toRight) {
+        Square currentSquare = getCurrentSquare();
+        // The square where the enemy pawn is
+        // next to the current pawn
+        Square lowerSquare = currentSquare.getNextNeighborX(toRight);
+        if (lowerSquare == null || !lowerSquare.isOccupied())
+            return false;
 
-        Piece p = ns.getOccupyingPiece();
-        Square psp = p.getPreviousSquare();
+        Piece piece = lowerSquare.getOccupyingPiece();
+        if (!piece.hasBeenMoved())
+            return false;
+        Square previousMovePiece = piece.getPreviousSquare();
 
         // Check if it is a pawn and
         // if it has been moved
-        if(p instanceof Pawn && psp != null && p.getRound() == board.getRound() - 1) {
-            boolean hasDoubleMoved = Math.abs(psp.getY() - p.getSquare().getY()) == 2;
-            if (isEnemy(p) && hasDoubleMoved)
-                return true;
+        boolean previousMove = piece.getRound() == board.getRound() - 1;
+        boolean hasDoubleMoved =  Math.abs(previousMovePiece.y - piece.getCurrentSquare().y) == 2;
+        if(piece instanceof Pawn && isEnemy(piece) && hasBeenMoved() && previousMove && hasDoubleMoved) {
+            return true;
         }
 
         return false;

@@ -17,29 +17,24 @@ public class Bishop extends Piece {
     @Override
     public ArrayList<Square> getLegalMoves(Board board) {
         ArrayList<Square> moves = new ArrayList<Square>();
-        Square is = getSquare();
+        Square initialSquare = getCurrentSquare();
 
         // 4 directions
-        // respectively to bottom, and to right
         boolean directions[] = { true, false };
-        Square cs = is;
+        Square candidate;
+        Square nextCandidateSquare;
         for(boolean toBottom: directions) {
             for (boolean toRight : directions) {
-                // Looping until border is hit
-                // or another piece detected
-                while ((cs = cs.getDiagonalNeighbor(toBottom, toRight)) != null) {
-                    // Free square
-                    if (!cs.isOccupied()) moves.add(cs);
-                    // Enemy so we can fucking eat it
-                    if (cs.isOccupied()) {
-                        Piece p = cs.getOccupyingPiece();
-                        if (isEnemy(p))
-                            moves.add(cs);
-                        else
-                            break;
-                    }
+                // Add free squares
+                candidate = initialSquare.getLastFreeSquare(toBottom, toRight, true, true);
+                moves.add(candidate);
+
+                // Check if it can eat
+                nextCandidateSquare = candidate.getNextNeighbor(toBottom, toRight, true, true);
+                if(nextCandidateSquare != null && nextCandidateSquare.isOccupied()) {
+                    Piece piece = nextCandidateSquare.getOccupyingPiece();
+                    if(isEnemy(piece)) moves.add(nextCandidateSquare);
                 }
-                cs = is;
             }
         }
 
